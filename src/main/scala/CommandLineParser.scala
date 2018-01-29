@@ -6,13 +6,16 @@ import org.apache.commons.csv.CSVFormat
 import scopt.Read
 
 object CommandLineParser extends scopt.OptionParser[Args]("gen-files-by-template") with ArgReaders {
-  head("gen-files-by-template", "0.1")
+  head("gen-files-by-template", buildinfo.BuildInfo.version)
 
   opt[CSVFormat]("data-format").optional().text("формат файла с данными, один из: csv, csv-excel, csv-rfc4180; по умолчанию csv")
     .action((format, args) => args.copy(dataFormat = format))
 
   opt[Charset]("charset").optional().text("кодировка файлов с данными и шаблоном, а также сгенерированных файлов, по умолчанию 'UTF-8'")
     .action((charset,args) => args.copy(charset = charset))
+
+  opt[Unit]("append").optional().text("дополнять текст сгенерированных файлов")
+    .action((_, args) => args.copy(append = true))
 
   opt[Unit]("debug").text("включить отладочный вывод")
     .action((_, args) => args.copy(debug = true))
@@ -50,6 +53,18 @@ object CommandLineParser extends scopt.OptionParser[Args]("gen-files-by-template
   note("Peter.json:")
   note("  { \"name\": \"Peter\", \"age\": 21 }")
   note("Alice.json")
+  note("  { \"name\": \"Alice\", \"age\": 25 }")
+  note("")
+  note("С помощью опции --append сгенерированный текст будет добавлен к содержимому (при его наличии)")
+  note("сгенерированных файлов. Эту возможность можно использовать, к примеру, для того, чтобы объединить")
+  note("весь сгенерированный текст в один файл, вместо нескольких:")
+  note("")
+  note("gen-files-by-template --append template.json data.csv out.json")
+  note("")
+  note("При этом все сгенерированные данные будут объединены в единственном файле out.json:")
+  note("")
+  note("out.json:")
+  note("  { \"name\": \"Peter\", \"age\": 21 }")
   note("  { \"name\": \"Alice\", \"age\": 25 }")
 
   private def fileExistsAndReadable(file: Path): Either[String,Unit] =

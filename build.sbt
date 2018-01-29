@@ -1,4 +1,5 @@
 lazy val genFilesByTemplate = (project in file("."))
+  .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings: _*)
   .settings(
     name := "gen-files-by-template",
@@ -15,7 +16,9 @@ lazy val genFilesByTemplate = (project in file("."))
       "com.lihaoyi" %% "pprint" % "0.5.1",
       "org.scalactic" %% "scalactic" % "3.0.2",
       "org.scalatest" %% "scalatest" % "3.0.2" % "test"
-    )
+    ),
+
+    buildInfoKeys := Seq[BuildInfoKey](name, version)
   )
 
 lazy val commonSettings = Seq(

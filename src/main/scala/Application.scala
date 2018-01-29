@@ -1,6 +1,6 @@
 import java.io.FileReader
 import java.nio.charset.Charset
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file._
 
 import org.apache.commons.csv.CSVFormat
 
@@ -12,7 +12,8 @@ object Application extends App {
                   dataFormat: CSVFormat = CSVFormat.DEFAULT,
                   outputFileNameTemplateBody: String = "",
                   debug: Boolean = false,
-                  charset: Charset = Charset.forName("UTF-8"))
+                  charset: Charset = Charset.forName("UTF-8"),
+                  append: Boolean = false)
 
   val appArgs = CommandLineParser.parse(args, Args()) match {
     case Some(args) =>
@@ -47,14 +48,23 @@ object Application extends App {
 
     val template = templateEngine.createTemplateFromString(templateBody)
     val outputFileNameTemplate = templateEngine.createTemplateFromString(outputFileNameTemplateBody)
+    val openOpts: Array[OpenOption] =
+      if (appArgs.append)
+        Array(StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND)
+      else
+        Array.empty
 
     for (dataRecord <- dataRecords) {
       val outputFileName = outputFileNameTemplate.render(dataRecord)
       val outputFileContent = template.render(dataRecord)
 
       try {
-        Files.write(Paths.get(outputFileName), outputFileContent.getBytes(charset))
-        Console.out.println(s"Сгенерирован файл $outputFileName")
+        Files.write(Paths.get(outputFileName), outputFileContent.getBytes(charset), openOpts : _*)
+        Console.out.println(
+          if (appArgs.append)
+            s"Осуществлена запись в файл $outputFileName"
+          else
+            s"Сгенерирован файл $outputFileName")
       } catch {
         case NonFatal(e) =>
           Console.err.println(s"Не получилось записать в файл $outputFileName: " + e.description)
