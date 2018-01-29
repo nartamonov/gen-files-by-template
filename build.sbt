@@ -22,7 +22,7 @@ lazy val genFilesByTemplate = (project in file("."))
   )
 
 lazy val commonSettings = Seq(
-  version               := "0.2-SNAPSHOT",
+  version               := "0.2",
   startYear             := Some(2017),
   scalaVersion          := "2.12.4",
   scalacOptions         ++= Seq("-target:jvm-1.8", "-deprecation", "-unchecked", "-Xcheckinit", "-encoding", "utf8", "-feature"),
